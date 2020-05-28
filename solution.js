@@ -1,60 +1,62 @@
-const users = require ("./src/users.json");
-const contacts = require ("./src/contacts.json");
+const users = require('./src/users.json');
+const contacts = require('./src/contacts.json');
+const similarityStore = [];
 
-
-const getRandomConstants = arr => {
+const getRandomConstants = (arr) => {
   const randInt = Math.floor(Math.random() * (5499 - 1 + 1)) + 1;
   return arr[randInt];
 };
 
-// console.log([...new Set(users.map(user => user.name))].length);
-// console.log(contacts.length);
-const userContacts = [];
-for (let i = 0; i <= 8499; i++) {
-  userContacts.push(getRandomConstants(contacts));
-}
+const getSimilarity = (user1, user2) => {
+  console.log('checking similarity')
+  const denom = Math.floor((user1.contacts.length + user2.contacts.length) / 2);
+  const similarContacts = intersection(user1.contacts, user2.contacts);
 
-// console.log(userContacts[0]);
+  return (similarContacts.length / denom) * 100;
+};
+
+const intersection = (arr1, arr2) => {
+  return arr1.filter((element) => arr2.includes(element));
+};
 
 
-users.forEach((user, index) => {
-  // console.log(user);
-  user.contacts = []
+for (let index = 0; index < users.length; index++) {
+  const user = users[index];
+  user.contacts = [];
   let endLoopAt = 699;
-  if(index % 2 === 0 && index > 600) {
-    endLoopAt = 899
+  if (index % 2 === 0 && index > 600) {
+    endLoopAt = 899;
   }
-  if(index % 2 !== 0 && index > 600) {
-    endLoopAt = 799
+  if (index % 2 !== 0 && index > 600) {
+    endLoopAt = 799;
   }
-  if(index % 2 !== 0 && index > 300  && index < 600) {
-    endLoopAt = 749
+  if (index % 2 !== 0 && index > 300 && index < 600) {
+    endLoopAt = 749;
   }
-  if(index % 2 === 0 && index > 300  && index < 600) {
-    endLoopAt = 849
+  if (index % 2 === 0 && index > 300 && index < 600) {
+    endLoopAt = 849;
   }
   for (let i = 0; i <= endLoopAt; i++) {
-    user.contacts.push(getRandomConstants(userContacts))
+    user.contacts.push(getRandomConstants(contacts))
   }
-});
-
-
-console.log(users[1]);
-// console.log(JSON.stringify(users))
-// const longestContact = users.find(user => user.contacts.length < 700)
-
-// console.log(longestContact);
-const user0 = users[0];
-const user1 = users[1];
-
-const combCon = [ ...user1.contacts, ...user0.contacts];
-
-console.log(combCon[0]);
-console.log([...new Set(combCon)].length);
-
-console.log(combCon.length-[...new Set(combCon)].length)
-const intersection = (arr1, arr2) => {
-  return arr1.contacts.filter(element => arr2.contacts.includes(element));
 }
 
-console.log(intersection(user1, user0).length);
+for (let i = 0; i < users.length; i++) {
+  const user = users[i];
+  for (let j = 0; j < users.length; j++) {
+    const user2 = users[j];
+    if(users[i].name !== users[j].name) {
+      const similarity = getSimilarity(user, user2);
+      console.log(similarity)
+      if (similarity >= 30) {
+        similarityStore.push({
+          users: [user.name, user2.name],
+          similarity,
+        });
+      }
+    }
+  }
+  users.splice(i, 1);
+}
+
+console.log(similarityStore);
